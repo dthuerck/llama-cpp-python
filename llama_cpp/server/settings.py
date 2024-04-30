@@ -212,6 +212,11 @@ class ServerSettings(BaseSettings):
         default=False,
         description="Disable EventSource pings (may be needed for some clients).",
     )
+    # Misc
+    swap_only_device_buffers: bool = Field(
+        default=False, 
+        description="Whether to have only one model in RAM or all models at the same time, only swapping the GPU memory as needed."
+    )
 
 
 class Settings(ServerSettings, ModelSettings):

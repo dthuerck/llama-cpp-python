@@ -22,6 +22,7 @@ from starlette_context.middleware import RawContextMiddleware
 
 from llama_cpp.server.model import (
     LlamaProxy,
+    LlamaModelSwapStrategy
 )
 from llama_cpp.server.settings import (
     ConfigFileSettings,
@@ -65,7 +66,16 @@ llama_inner_lock = Lock()
 
 def set_llama_proxy(model_settings: List[ModelSettings]):
     global _llama_proxy
-    _llama_proxy = LlamaProxy(models=model_settings)
+
+    llama_swap_strategy : LlamaModelSwapStrategy = \
+        LlamaModelSwapStrategy.LLAMA_MODEL_STRATEGY_SWAP_MODELS
+    
+    if _server_settings.swap_only_device_buffers:
+        llama_swap_strategy = \
+            LlamaModelSwapStrategy.LLAMA_MODEL_STRATEGY_SWAP_BACKEND_WEIGHTS
+
+    _llama_proxy = LlamaProxy(models=model_settings, \
+        swap_strategy=llama_swap_strategy)
 
 
 def get_llama_proxy():

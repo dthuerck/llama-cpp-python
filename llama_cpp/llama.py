@@ -1834,6 +1834,18 @@ class Llama:
         if llama_cpp.llama_set_state_data(self._ctx.ctx, llama_state) != state_size:
             raise RuntimeError("Failed to set llama state data")
 
+    def backend_swap_out(self) -> None:
+        llama_cpp.llama_backend_swap_out(self._ctx.context_p(), 
+            self._model.model_p())
+
+    def backend_swap_in(self) -> None:
+        llama_cpp.llama_backend_swap_in(self._ctx.context_p(), 
+            self._model.model_p())
+
+    def ctx(self) -> _LlamaContext:
+        """Return the model's context object."""
+        return self._ctx
+
     def n_ctx(self) -> int:
         """Return the context window size."""
         return self._ctx.n_ctx()

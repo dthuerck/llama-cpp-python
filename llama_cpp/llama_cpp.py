@@ -1081,6 +1081,30 @@ def llama_free_model(model: llama_model_p, /):
     ...
 
 
+# LLAMA_API void llama_model_swap_out(
+#                        struct llama_context * context,
+#                        struct llama_model * model);
+@ctypes_function(
+    "llama_backend_swap_out",
+    [llama_context_p_ctypes, llama_model_p_ctypes],
+    None,
+)
+def llama_backend_swap_out(context : llama_context_p, model: llama_model_p, /):
+    ...
+
+
+# LLAMA_API void llama_model_swap_in(
+#                        struct llama_context * context,
+#                        struct llama_model * model);
+@ctypes_function(
+    "llama_backend_swap_in",
+    [llama_context_p_ctypes, llama_model_p_ctypes],
+    None,
+)
+def llama_backend_swap_in(context : llama_context_p, model: llama_model_p, /):
+    ...
+    
+
 # LLAMA_API struct llama_context * llama_new_context_with_model(
 #                  struct llama_model * model,
 #         struct llama_context_params   params);

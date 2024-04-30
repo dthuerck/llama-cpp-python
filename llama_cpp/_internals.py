@@ -59,6 +59,9 @@ class _LlamaModel:
             self._llama_free_model(self.model)
             self.model = None
 
+    def model_p(self) -> llama_cpp.llama_model_p:
+        return self.model
+
     def vocab_type(self) -> int:
         assert self.model is not None
         return llama_cpp.llama_vocab_type(self.model)
@@ -268,6 +271,9 @@ class _LlamaContext:
         if self.ctx is not None and self._llama_free is not None:
             self._llama_free(self.ctx)
             self.ctx = None
+
+    def context_p(self) -> llama_cpp.llama_context_p:
+        return self.ctx
 
     def n_ctx(self) -> int:
         assert self.ctx is not None
