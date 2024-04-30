@@ -285,7 +285,7 @@ class LlamaProxy:
                 model.swap_backend_buffer_out()
 
             # only swap in the current model
-            # self._models[self._current_model].swap_backend_buffer_in()
+            self._models[self._current_model].swap_backend_buffer_in()
         elif swap_strategy == \
             LlamaModelSwapStrategy.LLAMA_MODEL_STRATEGY_SWAP_MODELS:
             self._models[self._current_model].load()
