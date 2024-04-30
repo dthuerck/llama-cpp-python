@@ -121,7 +121,7 @@ CMAKE_ARGS="-DLLAMA_CUDA=on" pip install llama-cpp-python
 
 It is also possible to install a pre-built wheel with CUDA support. As long as your system meets some requirements:
 
-- CUDA Version is 12.1, 12.2 or 12.3
+- CUDA Version is 12.1, 12.2, 12.3, or 12.4
 - Python Version is 3.10, 3.11 or 3.12
 
 ```bash
@@ -133,6 +133,7 @@ Where `<cuda-version>` is one of the following:
 - `cu121`: CUDA 12.1
 - `cu122`: CUDA 12.2
 - `cu123`: CUDA 12.3
+- `cu124`: CUDA 12.4
 
 For example, to install the CUDA 12.1 wheel:
 
@@ -484,18 +485,21 @@ Due to discrepancies between llama.cpp and HuggingFace's tokenizers, it is requi
   tokenizer=LlamaHFTokenizer.from_pretrained("meetkai/functionary-small-v2.2-GGUF")
 )
 ```
+
+**NOTE**: There is no need to provide the default system messages used in Functionary as they are added automatically in the Functionary chat handler. Thus, the messages should contain just the chat messages and/or system messages that provide additional context for the model (e.g.: datetime, etc.).
 </details>
 
 ### Multi-modal Models
 
-`llama-cpp-python` supports the llava1.5 family of multi-modal models which allow the language model to
-read information from both text and images.
+`llama-cpp-python` supports such as llava1.5 which allow the language model to read information from both text and images.
 
 You'll first need to download one of the available multi-modal models in GGUF format:
 
 - [llava-v1.5-7b](https://huggingface.co/mys/ggml_llava-v1.5-7b)
 - [llava-v1.5-13b](https://huggingface.co/mys/ggml_llava-v1.5-13b)
 - [bakllava-1-7b](https://huggingface.co/mys/ggml_bakllava-1)
+- [llava-v1.6-34b](https://huggingface.co/cjpais/llava-v1.6-34B-gguf)
+- [moondream2](https://huggingface.co/vikhyatk/moondream2)
 
 Then you'll need to use a custom chat handler to load the clip model and process the chat messages and images.
 
@@ -507,7 +511,6 @@ Then you'll need to use a custom chat handler to load the clip model and process
   model_path="./path/to/llava/llama-model.gguf",
   chat_handler=chat_handler,
   n_ctx=2048, # n_ctx should be increased to accomodate the image embedding
-  logits_all=True,# needed to make llava work
 )
 >>> llm.create_chat_completion(
     messages = [
@@ -515,13 +518,44 @@ Then you'll need to use a custom chat handler to load the clip model and process
         {
             "role": "user",
             "content": [
-                {"type": "image_url", "image_url": {"url": "https://.../image.png"}},
-                {"type" : "text", "text": "Describe this image in detail please."}
+                {"type" : "text", "text": "What's in this image?"},
+                {"type": "image_url", "image_url": {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg" } }
             ]
         }
     ]
 )
 ```
+
+You can also pull the model from the Hugging Face Hub using the `from_pretrained` method.
+
+```python
+>>> from llama_cpp import Llama
+>>> from llama_cpp.llama_chat_format import MoondreamChatHandler
+>>> chat_handler = MoondreamChatHandler.from_pretrained(
+  repo_id="vikhyatk/moondream2",
+  filename="*mmproj*",
+)
+>>> llm = Llama.from_pretrained(
+  repo_id="vikhyatk/moondream2"
+  filename="*text-model*",
+  chat_handler=chat_handler,
+  n_ctx=2048, # n_ctx should be increased to accomodate the image embedding
+)
+>>> llm.create_chat_completion(
+    messages = [
+        {
+            "role": "user",
+            "content": [
+                {"type" : "text", "text": "What's in this image?"},
+                {"type": "image_url", "image_url": {"url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg" } }
+
+            ]
+        }
+    ]
+)
+```
+
+**Note**: Multi-modal models also support tool calling and JSON mode.
 
 <details>
 <summary>Loading a Local Image</summary>
